@@ -12,22 +12,17 @@ Messages are sent over REST (`POST /api/messages`), persisted to the database, a
 
 ## Running it
 
-Both services already run as Replit workflows and share the project's Postgres database (`DATABASE_URL` is provisioned automatically by Replit — no manual setup needed):
-
-- `artifacts/api-server: API Server` — `pnpm --filter @workspace/api-server run dev` (REST API + Socket.io, mounted under `/api`)
-- `artifacts/chat-app: web` — `pnpm --filter @workspace/chat-app run dev` (the chat UI, mounted at `/`)
-
-If you're running outside of Replit's workflow system, start both manually from the repo root:
+Start both services from the repo root (each reads its own `PORT`/config, see `.env.example` in each app):
 
 ```bash
-pnpm --filter @workspace/api-server run dev
-pnpm --filter @workspace/chat-app run dev
+pnpm --filter @workspace/api-server run dev   # REST API + Socket.io, mounted under /api
+pnpm --filter @workspace/chat-app run dev     # chat UI, mounted at /
 ```
 
 ## Environment variables
 
-- `DATABASE_URL` — Postgres connection string. On Replit this is provisioned and injected automatically; nothing to configure.
-- `PORT` — injected per-service by Replit's workflow/port system; not something you need to set by hand.
+- `DATABASE_URL` — Postgres connection string for the messages database.
+- `PORT` — the port each service listens on.
 
 No other secrets or API keys are required — usernames are a dummy, no-password identity for the session only.
 
@@ -56,9 +51,7 @@ Path: `/api/socket.io/` (mounted under the API's `/api` prefix so it shares the 
 - **REST for writes, sockets for fan-out**: sending a message always goes through the REST endpoint (so it's validated and persisted the same way regardless of transport), and the server is the single source of truth that broadcasts the confirmed message back over the socket — clients never trust their own optimistic echo as the final state.
 - **History limit**: `GET /api/messages` defaults to the last 100 messages; older history isn't paginated in this version.
 
-## Notes on submission logistics
+## Notes
 
-This workspace can build and run the app, but a few submission items are outside what I can produce directly from here:
-- **GitHub repo link** — I can push this project to a GitHub remote if you connect one (Replit supports linking a GitHub repo from the project settings); ask if you'd like help with that.
-- **APK** — this is the web (React) version of the app, not a React Native build, so there's no APK to produce. If you specifically need a mobile app, that would be a separate build.
-- **Screen recording** — I can't record video of the running app myself; you'd capture that yourself from the live preview once it's deployed.
+- **APK**: this is the web (React) version of the app, not a React Native build, so there's no APK here. A mobile build would be a separate project.
+- **Screen recording**: capture this yourself from the running app once it's deployed.
