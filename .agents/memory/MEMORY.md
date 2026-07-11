@@ -1,0 +1,1 @@
+- [Socket.io in a path-routed artifact](socketio-artifact-routing.md) — mount Socket.io's `path` under the API artifact's existing `previewPath` prefix; no artifact.toml edit needed.
