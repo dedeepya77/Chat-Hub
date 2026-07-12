@@ -6,11 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type ListMessagesParams = {
-channelId: number;
 /**
- * @minimum 1
- * @maximum 500
+ * Map of emoji to the usernames who reacted with it
  */
-limit?: number;
-};
+export interface Reactions {[key: string]: string[]}

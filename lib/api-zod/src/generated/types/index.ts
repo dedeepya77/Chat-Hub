@@ -6,8 +6,15 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './channel';
 export * from './chatError';
 export * from './healthStatus';
 export * from './listMessagesParams';
+export * from './loginBody';
 export * from './message';
 export * from './messageInput';
+export * from './messageStatus';
+export * from './reactionInput';
+export * from './reactions';
+export * from './signupBody';
+export * from './user';

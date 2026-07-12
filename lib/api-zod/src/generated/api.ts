@@ -18,21 +18,107 @@ export const HealthCheckResponse = zod.object({
 
 
 /**
+ * Validates demo credentials and returns the matching user
+ * @summary Log in with a username and password
+ */
+
+
+
+
+export const LoginBody = zod.object({
+  "username": zod.string().min(1),
+  "password": zod.string().min(1)
+})
+
+export const LoginResponse = zod.object({
+  "id": zod.number(),
+  "username": zod.string(),
+  "displayName": zod.string(),
+  "title": zod.string(),
+  "avatarColor": zod.string(),
+  "bio": zod.string(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Create a new demo account
+ */
+export const signupBodyUsernameMin = 2;
+export const signupBodyUsernameMax = 32;
+
+export const signupBodyPasswordMin = 4;
+export const signupBodyPasswordMax = 128;
+
+export const signupBodyDisplayNameMax = 64;
+
+
+
+export const SignupBody = zod.object({
+  "username": zod.string().min(signupBodyUsernameMin).max(signupBodyUsernameMax),
+  "password": zod.string().min(signupBodyPasswordMin).max(signupBodyPasswordMax),
+  "displayName": zod.string().min(1).max(signupBodyDisplayNameMax)
+})
+
+export const SignupResponse = zod.object({
+  "id": zod.number(),
+  "username": zod.string(),
+  "displayName": zod.string(),
+  "title": zod.string(),
+  "avatarColor": zod.string(),
+  "bio": zod.string(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary List all team members
+ */
+export const ListUsersResponseItem = zod.object({
+  "id": zod.number(),
+  "username": zod.string(),
+  "displayName": zod.string(),
+  "title": zod.string(),
+  "avatarColor": zod.string(),
+  "bio": zod.string(),
+  "createdAt": zod.coerce.date()
+})
+export const ListUsersResponse = zod.array(ListUsersResponseItem)
+
+
+/**
+ * @summary List all channels
+ */
+export const ListChannelsResponseItem = zod.object({
+  "id": zod.number(),
+  "slug": zod.string(),
+  "name": zod.string(),
+  "description": zod.string(),
+  "createdAt": zod.coerce.date()
+})
+export const ListChannelsResponse = zod.array(ListChannelsResponseItem)
+
+
+/**
  * Returns chat messages ordered from oldest to newest
- * @summary Fetch chat history
+ * @summary Fetch chat history for a channel
  */
 export const listMessagesQueryLimitMax = 500;
 
 
 
 export const ListMessagesQueryParams = zod.object({
+  "channelId": zod.coerce.number(),
   "limit": zod.coerce.number().min(1).max(listMessagesQueryLimitMax).optional()
 })
 
 export const ListMessagesResponseItem = zod.object({
   "id": zod.number(),
+  "channelId": zod.number(),
   "username": zod.string(),
   "content": zod.string(),
+  "status": zod.enum(['sent', 'delivered', 'read']),
+  "reactions": zod.record(zod.string(), zod.array(zod.string())).describe('Map of emoji to the usernames who reacted with it'),
   "createdAt": zod.coerce.date()
 })
 export const ListMessagesResponse = zod.array(ListMessagesResponseItem)
@@ -49,14 +135,48 @@ export const sendMessageBodyContentMax = 2000;
 
 
 export const SendMessageBody = zod.object({
+  "channelId": zod.number(),
   "username": zod.string().min(1).max(sendMessageBodyUsernameMax),
   "content": zod.string().min(1).max(sendMessageBodyContentMax)
 })
 
 export const SendMessageResponse = zod.object({
   "id": zod.number(),
+  "channelId": zod.number(),
   "username": zod.string(),
   "content": zod.string(),
+  "status": zod.enum(['sent', 'delivered', 'read']),
+  "reactions": zod.record(zod.string(), zod.array(zod.string())).describe('Map of emoji to the usernames who reacted with it'),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * Adds the reaction if the user hasn't reacted with it yet, otherwise removes it, and broadcasts the update
+ * @summary Toggle an emoji reaction on a message
+ */
+export const ToggleReactionParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const toggleReactionBodyUsernameMax = 32;
+
+export const toggleReactionBodyEmojiMax = 8;
+
+
+
+export const ToggleReactionBody = zod.object({
+  "username": zod.string().min(1).max(toggleReactionBodyUsernameMax),
+  "emoji": zod.string().min(1).max(toggleReactionBodyEmojiMax)
+})
+
+export const ToggleReactionResponse = zod.object({
+  "id": zod.number(),
+  "channelId": zod.number(),
+  "username": zod.string(),
+  "content": zod.string(),
+  "status": zod.enum(['sent', 'delivered', 'read']),
+  "reactions": zod.record(zod.string(), zod.array(zod.string())).describe('Map of emoji to the usernames who reacted with it'),
   "createdAt": zod.coerce.date()
 })
 

@@ -5,10 +5,15 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { MessageStatus } from './messageStatus';
+import type { Reactions } from './reactions';
 
 export interface Message {
   id: number;
+  channelId: number;
   username: string;
   content: string;
+  status: MessageStatus;
+  reactions: Reactions;
   createdAt: Date;
 }

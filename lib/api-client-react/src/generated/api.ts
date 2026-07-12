@@ -20,11 +20,16 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  Channel,
   ChatError,
   HealthStatus,
   ListMessagesParams,
+  LoginBody,
   Message,
-  MessageInput
+  MessageInput,
+  ReactionInput,
+  SignupBody,
+  User
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -132,7 +137,304 @@ export function useHealthCheck<TData = Awaited<ReturnType<typeof healthCheck>>, 
 
 
 
-export const getListMessagesUrl = (params?: ListMessagesParams,) => {
+export const getLoginUrl = () => {
+
+
+
+
+  return `/api/auth/login`
+}
+
+/**
+ * Validates demo credentials and returns the matching user
+ * @summary Log in with a username and password
+ */
+export const login = async (loginBody: LoginBody, options?: RequestInit): Promise<User> => {
+
+  return customFetch<User>(getLoginUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(loginBody)
+  }
+);}
+
+
+
+
+
+export const getLoginMutationOptions = <TError = ErrorType<ChatError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof login>>, TError,{data: BodyType<LoginBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof login>>, TError,{data: BodyType<LoginBody>}, TContext> => {
+
+const mutationKey = ['login'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof login>>, {data: BodyType<LoginBody>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  login(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type LoginMutationResult = NonNullable<Awaited<ReturnType<typeof login>>>
+    export type LoginMutationBody = BodyType<LoginBody>
+    export type LoginMutationError = ErrorType<ChatError>
+
+    /**
+ * @summary Log in with a username and password
+ */
+export const useLogin = <TError = ErrorType<ChatError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof login>>, TError,{data: BodyType<LoginBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof login>>,
+        TError,
+        {data: BodyType<LoginBody>},
+        TContext
+      > => {
+      return useMutation(getLoginMutationOptions(options));
+    }
+
+export const getSignupUrl = () => {
+
+
+
+
+  return `/api/auth/signup`
+}
+
+/**
+ * @summary Create a new demo account
+ */
+export const signup = async (signupBody: SignupBody, options?: RequestInit): Promise<User> => {
+
+  return customFetch<User>(getSignupUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(signupBody)
+  }
+);}
+
+
+
+
+
+export const getSignupMutationOptions = <TError = ErrorType<ChatError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof signup>>, TError,{data: BodyType<SignupBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof signup>>, TError,{data: BodyType<SignupBody>}, TContext> => {
+
+const mutationKey = ['signup'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof signup>>, {data: BodyType<SignupBody>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  signup(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SignupMutationResult = NonNullable<Awaited<ReturnType<typeof signup>>>
+    export type SignupMutationBody = BodyType<SignupBody>
+    export type SignupMutationError = ErrorType<ChatError>
+
+    /**
+ * @summary Create a new demo account
+ */
+export const useSignup = <TError = ErrorType<ChatError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof signup>>, TError,{data: BodyType<SignupBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof signup>>,
+        TError,
+        {data: BodyType<SignupBody>},
+        TContext
+      > => {
+      return useMutation(getSignupMutationOptions(options));
+    }
+
+export const getListUsersUrl = () => {
+
+
+
+
+  return `/api/users`
+}
+
+/**
+ * @summary List all team members
+ */
+export const listUsers = async ( options?: RequestInit): Promise<User[]> => {
+
+  return customFetch<User[]>(getListUsersUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListUsersQueryKey = () => {
+    return [
+    `/api/users`
+    ] as const;
+    }
+
+
+export const getListUsersQueryOptions = <TData = Awaited<ReturnType<typeof listUsers>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listUsers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListUsersQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listUsers>>> = ({ signal }) => listUsers({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listUsers>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListUsersQueryResult = NonNullable<Awaited<ReturnType<typeof listUsers>>>
+export type ListUsersQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List all team members
+ */
+
+export function useListUsers<TData = Awaited<ReturnType<typeof listUsers>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listUsers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListUsersQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListChannelsUrl = () => {
+
+
+
+
+  return `/api/channels`
+}
+
+/**
+ * @summary List all channels
+ */
+export const listChannels = async ( options?: RequestInit): Promise<Channel[]> => {
+
+  return customFetch<Channel[]>(getListChannelsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListChannelsQueryKey = () => {
+    return [
+    `/api/channels`
+    ] as const;
+    }
+
+
+export const getListChannelsQueryOptions = <TData = Awaited<ReturnType<typeof listChannels>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listChannels>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListChannelsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listChannels>>> = ({ signal }) => listChannels({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listChannels>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListChannelsQueryResult = NonNullable<Awaited<ReturnType<typeof listChannels>>>
+export type ListChannelsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List all channels
+ */
+
+export function useListChannels<TData = Awaited<ReturnType<typeof listChannels>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listChannels>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListChannelsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListMessagesUrl = (params: ListMessagesParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -149,9 +451,9 @@ export const getListMessagesUrl = (params?: ListMessagesParams,) => {
 
 /**
  * Returns chat messages ordered from oldest to newest
- * @summary Fetch chat history
+ * @summary Fetch chat history for a channel
  */
-export const listMessages = async (params?: ListMessagesParams, options?: RequestInit): Promise<Message[]> => {
+export const listMessages = async (params: ListMessagesParams, options?: RequestInit): Promise<Message[]> => {
 
   return customFetch<Message[]>(getListMessagesUrl(params),
   {
@@ -173,7 +475,7 @@ export const getListMessagesQueryKey = (params?: ListMessagesParams,) => {
     }
 
 
-export const getListMessagesQueryOptions = <TData = Awaited<ReturnType<typeof listMessages>>, TError = ErrorType<unknown>>(params?: ListMessagesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listMessages>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getListMessagesQueryOptions = <TData = Awaited<ReturnType<typeof listMessages>>, TError = ErrorType<unknown>>(params: ListMessagesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listMessages>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -196,11 +498,11 @@ export type ListMessagesQueryError = ErrorType<unknown>
 
 
 /**
- * @summary Fetch chat history
+ * @summary Fetch chat history for a channel
  */
 
 export function useListMessages<TData = Awaited<ReturnType<typeof listMessages>>, TError = ErrorType<unknown>>(
- params?: ListMessagesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listMessages>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+ params: ListMessagesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listMessages>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
@@ -287,5 +589,78 @@ export const useSendMessage = <TError = ErrorType<ChatError>,
         TContext
       > => {
       return useMutation(getSendMessageMutationOptions(options));
+    }
+
+export const getToggleReactionUrl = (id: number,) => {
+
+
+
+
+  return `/api/messages/${id}/reactions`
+}
+
+/**
+ * Adds the reaction if the user hasn't reacted with it yet, otherwise removes it, and broadcasts the update
+ * @summary Toggle an emoji reaction on a message
+ */
+export const toggleReaction = async (id: number,
+    reactionInput: ReactionInput, options?: RequestInit): Promise<Message> => {
+
+  return customFetch<Message>(getToggleReactionUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(reactionInput)
+  }
+);}
+
+
+
+
+
+export const getToggleReactionMutationOptions = <TError = ErrorType<ChatError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof toggleReaction>>, TError,{id: number;data: BodyType<ReactionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof toggleReaction>>, TError,{id: number;data: BodyType<ReactionInput>}, TContext> => {
+
+const mutationKey = ['toggleReaction'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof toggleReaction>>, {id: number;data: BodyType<ReactionInput>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  toggleReaction(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ToggleReactionMutationResult = NonNullable<Awaited<ReturnType<typeof toggleReaction>>>
+    export type ToggleReactionMutationBody = BodyType<ReactionInput>
+    export type ToggleReactionMutationError = ErrorType<ChatError>
+
+    /**
+ * @summary Toggle an emoji reaction on a message
+ */
+export const useToggleReaction = <TError = ErrorType<ChatError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof toggleReaction>>, TError,{id: number;data: BodyType<ReactionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof toggleReaction>>,
+        TError,
+        {id: number;data: BodyType<ReactionInput>},
+        TContext
+      > => {
+      return useMutation(getToggleReactionMutationOptions(options));
     }
 

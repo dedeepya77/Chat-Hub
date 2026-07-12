@@ -9,14 +9,75 @@ export interface HealthStatus {
   status: string;
 }
 
-export interface Message {
+export interface User {
   id: number;
   username: string;
+  displayName: string;
+  title: string;
+  avatarColor: string;
+  bio: string;
+  createdAt: string;
+}
+
+export interface LoginBody {
+  /** @minLength 1 */
+  username: string;
+  /** @minLength 1 */
+  password: string;
+}
+
+export interface SignupBody {
+  /**
+     * @minLength 2
+     * @maxLength 32
+     */
+  username: string;
+  /**
+     * @minLength 4
+     * @maxLength 128
+     */
+  password: string;
+  /**
+     * @minLength 1
+     * @maxLength 64
+     */
+  displayName: string;
+}
+
+export interface Channel {
+  id: number;
+  slug: string;
+  name: string;
+  description: string;
+  createdAt: string;
+}
+
+/**
+ * Map of emoji to the usernames who reacted with it
+ */
+export interface Reactions {[key: string]: string[]}
+
+export type MessageStatus = typeof MessageStatus[keyof typeof MessageStatus];
+
+
+export const MessageStatus = {
+  sent: 'sent',
+  delivered: 'delivered',
+  read: 'read',
+} as const;
+
+export interface Message {
+  id: number;
+  channelId: number;
+  username: string;
   content: string;
+  status: MessageStatus;
+  reactions: Reactions;
   createdAt: string;
 }
 
 export interface MessageInput {
+  channelId: number;
   /**
      * @minLength 1
      * @maxLength 32
@@ -29,11 +90,25 @@ export interface MessageInput {
   content: string;
 }
 
+export interface ReactionInput {
+  /**
+     * @minLength 1
+     * @maxLength 32
+     */
+  username: string;
+  /**
+     * @minLength 1
+     * @maxLength 8
+     */
+  emoji: string;
+}
+
 export interface ChatError {
   error: string;
 }
 
 export type ListMessagesParams = {
+channelId: number;
 /**
  * @minimum 1
  * @maximum 500

@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Auth operations
   - name: chat
     description: Chat operations
 paths:
@@ -26,13 +28,95 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Log in with a username and password
+      description: Validates demo credentials and returns the matching user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginBody"
+      responses:
+        "200":
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatError"
+  /auth/signup:
+    post:
+      operationId: signup
+      tags: [auth]
+      summary: Create a new demo account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignupBody"
+      responses:
+        "201":
+          description: Account created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          description: Invalid input or username already taken
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatError"
+  /users:
+    get:
+      operationId: listUsers
+      tags: [auth]
+      summary: List all team members
+      responses:
+        "200":
+          description: Team roster
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+  /channels:
+    get:
+      operationId: listChannels
+      tags: [chat]
+      summary: List all channels
+      responses:
+        "200":
+          description: Channels
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Channel"
   /messages:
     get:
       operationId: listMessages
       tags: [chat]
-      summary: Fetch chat history
+      summary: Fetch chat history for a channel
       description: Returns chat messages ordered from oldest to newest
       parameters:
+        - name: channelId
+          in: query
+          required: true
+          schema:
+            type: integer
         - name: limit
           in: query
           required: false
@@ -73,6 +157,37 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ChatError"
+  /messages/{id}/reactions:
+    post:
+      operationId: toggleReaction
+      tags: [chat]
+      summary: Toggle an emoji reaction on a message
+      description: Adds the reaction if the user hasn't reacted with it yet, otherwise removes it, and broadcasts the update
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReactionInput"
+      responses:
+        "200":
+          description: Updated message
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        "404":
+          description: Message not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatError"
 components:
   schemas:
     HealthStatus:
@@ -82,14 +197,20 @@ components:
           type: string
       required:
         - status
-    Message:
+    User:
       type: object
       properties:
         id:
           type: integer
         username:
           type: string
-        content:
+        displayName:
+          type: string
+        title:
+          type: string
+        avatarColor:
+          type: string
+        bio:
           type: string
         createdAt:
           type: string
@@ -97,11 +218,101 @@ components:
       required:
         - id
         - username
+        - displayName
+        - title
+        - avatarColor
+        - bio
+        - createdAt
+    LoginBody:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 1
+        password:
+          type: string
+          minLength: 1
+      required:
+        - username
+        - password
+    SignupBody:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 2
+          maxLength: 32
+        password:
+          type: string
+          minLength: 4
+          maxLength: 128
+        displayName:
+          type: string
+          minLength: 1
+          maxLength: 64
+      required:
+        - username
+        - password
+        - displayName
+    Channel:
+      type: object
+      properties:
+        id:
+          type: integer
+        slug:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - slug
+        - name
+        - description
+        - createdAt
+    Reactions:
+      type: object
+      additionalProperties:
+        type: array
+        items:
+          type: string
+      description: Map of emoji to the usernames who reacted with it
+    Message:
+      type: object
+      properties:
+        id:
+          type: integer
+        channelId:
+          type: integer
+        username:
+          type: string
+        content:
+          type: string
+        status:
+          type: string
+          enum: [sent, delivered, read]
+        reactions:
+          $ref: "#/components/schemas/Reactions"
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - channelId
+        - username
         - content
+        - status
+        - reactions
         - createdAt
     MessageInput:
       type: object
       properties:
+        channelId:
+          type: integer
         username:
           type: string
           minLength: 1
@@ -111,8 +322,23 @@ components:
           minLength: 1
           maxLength: 2000
       required:
+        - channelId
         - username
         - content
+    ReactionInput:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 1
+          maxLength: 32
+        emoji:
+          type: string
+          minLength: 1
+          maxLength: 8
+      required:
+        - username
+        - emoji
     ChatError:
       type: object
       properties:
@@ -120,4 +346,3 @@ components:
           type: string
       required:
         - error
-

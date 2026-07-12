@@ -6,11 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type ListMessagesParams = {
-channelId: number;
-/**
- * @minimum 1
- * @maximum 500
- */
-limit?: number;
-};
+export interface Channel {
+  id: number;
+  slug: string;
+  name: string;
+  description: string;
+  createdAt: Date;
+}

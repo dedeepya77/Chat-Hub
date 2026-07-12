@@ -6,16 +6,20 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface MessageInput {
-  channelId: number;
+export interface SignupBody {
   /**
-     * @minLength 1
+     * @minLength 2
      * @maxLength 32
      */
   username: string;
   /**
-     * @minLength 1
-     * @maxLength 2000
+     * @minLength 4
+     * @maxLength 128
      */
-  content: string;
+  password: string;
+  /**
+     * @minLength 1
+     * @maxLength 64
+     */
+  displayName: string;
 }

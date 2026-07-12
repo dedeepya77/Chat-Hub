@@ -6,11 +6,9 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type ListMessagesParams = {
-channelId: number;
-/**
- * @minimum 1
- * @maximum 500
- */
-limit?: number;
-};
+export interface LoginBody {
+  /** @minLength 1 */
+  username: string;
+  /** @minLength 1 */
+  password: string;
+}

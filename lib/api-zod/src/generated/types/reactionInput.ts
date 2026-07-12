@@ -6,8 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface MessageInput {
-  channelId: number;
+export interface ReactionInput {
   /**
      * @minLength 1
      * @maxLength 32
@@ -15,7 +14,7 @@ export interface MessageInput {
   username: string;
   /**
      * @minLength 1
-     * @maxLength 2000
+     * @maxLength 8
      */
-  content: string;
+  emoji: string;
 }
