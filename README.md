@@ -2,8 +2,6 @@
 
 A modern real-time team chat application built with **React, Node.js, Express, Socket.io, PostgreSQL, and Drizzle ORM**. The application features a responsive Slack/Discord-inspired interface with channel-based conversations, typing indicators, read receipts, emoji reactions, and a clean dark-themed UI.
 
-🔗 **Live Demo:** https://chat-hub--dedeepya77.replit.app
-
 ---
 
 ## ✨ Features
